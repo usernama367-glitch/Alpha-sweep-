@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alpha Sweep | Enterprise Trading Hub</title>
+    <!-- Core External Secure Integrations -->
+    <script src="https://paystack.co"></script>
+    <script src="https://jsdelivr.net"></script>
+    <style>
+        :root {
+            --bg-deep: #06090f;
+            --bg-surface: #0d121f;
+            --bg-card: #131a2c;
+            --neon-cyan: #00f3ff;
+            --neon-green: #39ff14;
+            --neon-red: #ff3131;
+            --text-bright: #f0f4f8;
+            --text-dark: #6c7f93;
+            --border-glow: #1b263b;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: var(--bg-deep); color: var(--text-bright); padding: 24px; }
+        
+        .auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-deep); z-index: 9999; display: flex; align-items: center; justify-content: center; }
+        .auth-card { background: var(--bg-surface); border: 1px solid var(--border-glow); padding: 40px; border-radius: 16px; width: 100%; max-width: 400px; text-align: center; }
+        
+        header { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); border: 1px solid var(--border-glow); padding: 16px 24px; border-radius: 16px; margin-bottom: 24px; }
+        .logo { font-size: 24px; font-weight: 900; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; }
+        .logo span { color: var(--neon-cyan); }
+        
+        .dashboard-grid { display: grid; grid-template-columns: 2.2fr 1fr; gap: 24px; }
+        @media (max-width: 1024px) { .dashboard-grid { grid-template-columns: 1fr; } }
+        
+        .glass-card { background-color: var(--bg-surface); border: 1px solid var(--border-glow); border-radius: 16px; padding: 24px; margin-bottom: 24px; }
+        h3 { font-size: 16px; font-weight: 700; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-dark); }
+        
+        .input-field { width: 100%; background: #06090f; border: 1px solid var(--border-glow); padding: 12px; border-radius: 8px; color: #fff; margin-bottom: 14px; outline: none; }
+        .btn-action { background: linear-gradient(135deg, var(--neon-cyan) 0%, #00bcff 100%); color: #04060a; border: none; padding: 14px 24px; border-radius: 10px; font-weight: 700; cursor: pointer; width: 100%; transition: all 0.2s; }
+        .btn-action:hover { opacity: 0.9; transform: translateY(-1px); }
+        
+        /* High-speed Trading Matrix */
+        table { width: 100%; border-collapse: collapse; }
+        th { color: var(--text-dark); font-size: 11px; text-transform: uppercase; padding-bottom: 10px; text-align: left; }
+        td { padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.02); }
+        .price-cell { font-family: monospace; font-weight: 700; font-size: 15px; text-align: right; }
+        .up { color: var(--neon-green); } .down { color: var(--neon-red); }
+
+        /* Order Ticket Layout */
+        .order-ticket { display: flex; gap: 12px; margin-top: 15px; }
+        .btn-buy { background: var(--neon-green); color: #000; font-weight: bold; border: none; padding: 12px; border-radius: 8px; width: 50%; cursor: pointer; }
+        .btn-sell { background: var(--neon-red); color: #fff; font-weight: bold; border: none; padding: 12px; border-radius: 8px; width: 50%; cursor: pointer; }
+        
+        .account-toggle { display: flex; background: #06090f; padding: 4px; border-radius: 8px; margin-bottom: 16px; }
+        .toggle-tab { flex: 1; text-align: center; padding: 8px; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer; color: var(--text-dark); }
+        .toggle-tab.active { background: var(--bg-card); color: #fff; border: 1px solid var(--border-glow); }
+        
+        .terminal-box { background: #05070c; border: 1px solid #1a2236; padding: 12px; border-radius: 8px; font-family: monospace; font-size: 12px; color: var(--neon-cyan); height: 100px; overflow-y: auto; margin-top: 12px; }
+    </style>
+</head>
+<body>
+
+    <!-- SECURE ONBOARDING TERMINAL -->
+    <div id="authOverlay" class="auth-overlay">
+        <div class="auth-card">
+            <div class="auth-title"><span style="color:white">ALPHA</span> SWEEP</div>
+            <div style="font-size:12px; color:var(--text-dark); margin-bottom:20px;">Institutional Risk Access Portal</div>
+            <input type="email" id="userEmail" class="input-field" placeholder="Secure Email Address">
+            <input type="password" id="userPassword" class="input-field" placeholder="Security Password">
+            <button class="btn-action" onclick="authenticateUserSystem()">Initialise Terminal</button>
+        </div>
+    </div>
+
+    <!-- CENTRAL PLATFORM ARCHITECTURE -->
+    <header>
+        <div class="logo">Alpha<span>Sweep</span></div>
+        <div>
+            <span id="premiumStatus" style="display:none; margin-right:15px;" class="up">[MONTHLY SUBSCRIPTION ACTIVE]</span>
+            Session Standby</span>
+        </div>
+    </header>
+
+    <div class="dashboard-grid">
+        <!-- Live Execution Core -->
+        <div>
+            <div class="glass-card">
+                <h3>Live Execution Feeds</h3>
+                <table>
+                    <thead>
+                        <tr><th>Asset Descriptor</th><th style="text-align:right;">Bid/Ask Value</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>XAUUSD</strong> (Spot Gold)</td><td id="feed-XAUUSD" class="price-cell up">2740.50</td></tr>
+                        <tr><td><strong>US30</strong> (Wall Street Index)</td><td id="feed-US30" class="price-cell down">42050.00</td></tr>
+                        <tr><td><strong>NAS100</strong> (Nasdaq Tech Index)</td><td id="feed-NAS100" class="price-cell up">20115.75</td></tr>
+                        <tr><td><strong>EURUSD</strong> (Euro Spot)</td><td id="feed-EURUSD" class="price-cell up">1.08540</td></tr>
+                        <tr><td><strong>GBPUSD</strong> (Sterling Spot)</td><td id="feed-GBPUSD" class="price-cell down">1.29620</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="glass-card">
+                <h3>Instant Execution Order Ticket</h3>
+                <div style="display:flex; gap:15px; margin-bottom:12px;">
+                    <select id="orderAsset" class="input-field" style="margin:0; flex:1;">
+                        <option value="XAUUSD">XAUUSD (Gold)</option>
+                        <option value="US30">US30 (Dow Jones)</option>
+                        <option value="NAS100">NAS100 (Nasdaq)</option>
+                    </select>
+                    <input type="number" id="orderLots" class="input-field" style="margin:0; flex:1;" value="0.10" step="0.01">
+                </div>
+                <div class="order-ticket">
+                    <button class="btn-buy" onclick="dispatchOrder('BUY')">Execute Buy Market</button>
+                    <button class="btn-sell" onclick="dispatchOrder('SELL')">Execute Sell Market</button>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h3>Algorithmic Sweeper Configuration</h3>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <span style="font-weight:700; display:block;">Deploy Target Bot Loops</span>
+                        <span style="font-size:12px; color:var(--text-dark);">Requires premium active tier status validation.</span>
+                    </div>
+                    <input type="checkbox" id="botToggle" disabled onchange="toggleBotLoopExecution(this)">
+                </div>
+                <div id="botConsole" class="terminal-box" style="display:none;">[SYSTEM] Bot standing by...</div>
+            </div>
+        </div>
+
+        <!-- Ledger & Accounts Operations -->
+        <div>
+            <div class="glass-card">
+                <h3>Account Allocation Hub</h3>
+                <div class="account-toggle">
+                    <div id="tabDemo" class="toggle-tab active" onclick="switchAccountView('DEMO')">Simulated Demo</div>
+                    <div id="tabLive" class="toggle-tab" onclick="switchAccountView('LIVE')">Real Funded</div>
+                </div>
+                <div style="font-size:24px; font-weight:800; margin-bottom:15px;" id="balanceDisplay">$10,000.00</div>
+                
+                <div id="subscriptionLayer">
+                    <p style="font-size:13px; color:var(--text-dark); margin-bottom:12px;">To unlock real funding pipelines, linking features, and custom bots, activate the subscription layer.</p>
+                    <button class="btn-action" onclick="processPremiumMonthlySubscription()">Subscribe: R45 / Month</button>
+                </div>
+
+                <div id="fundingOperations" style="display:none;">
+                    <button class="btn-action" style="background:#161f30; color:#fff; border:1px solid var(--border-glow); margin-bottom:10px;" onclick="linkExternalTradingAccount()">Link External Broker Account</button>
+                    <button class="btn-action" onclick="openAndFundAlphaSweepAccount()">Open & Fund Internal Vault</button>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h3>Education Matrix Modules</h3>
+                <div style="padding:12px; background:#06090f; border-left:4px solid var(--neon-green); margin-bottom:10px; border-radius:0 8px 8px 0;">
+                    <strong>Lesson 1: Drawdown Parameters</strong>
